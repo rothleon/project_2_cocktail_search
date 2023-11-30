@@ -1,9 +1,13 @@
+//import 'dart:js_util';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
+import 'drinkdetails.dart';
 import 'apifetchers.dart';
 import 'dart:async';
+import 'drinkdetailnullsafe.dart';
 
 void main() {
   runApp(const MyApp());
@@ -18,7 +22,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Cocktail Search',
       theme: ThemeData(
-
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
         useMaterial3: true,
       ),
@@ -29,16 +32,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -46,45 +39,71 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
+  late Future<Map<String, String?>> futureDrinkDetailNullSafe;
   late Future<List<String>> futureIngredientList;
   late Future<List<DrinkFromSearch>> futureSearchResult;
+  late Future<DrinkFromDetail> futureDrinkDetail;
+  Map<String, String?> drinkDetailNullSafe = new Map();
+
+ /* DrinkFromDetail drinkDetail = DrinkFromDetail(
+      strDrink: "strDrink",
+      strDrinkThumb: "strDrinkThumb",
+      idDrink: "idDrink",
+      strInstructions: "strInstructions",
+      strIngredient1: "strIngredient1",
+      strIngredient2: "strIngredient2",
+      strIngredient3: "strIngredient3",
+      strIngredient4: "strIngredient4",
+      strIngredient5: "strIngredient5",
+      strIngredient6: "strIngredient6",
+      strIngredient7: "strIngredient7",
+      strIngredient8: "strIngredient8",
+      strIngredient9: "strIngredient9",
+      strIngredient10: "strIngredient10",
+      strIngredient11: "strIngredient11",
+      strIngredient12: "strIngredient12",
+      strIngredient13: "strIngredient13",
+      strIngredient14: "strIngredient14",
+      strIngredient15: "strIngredient15");
+
+  */
   List<DrinkFromSearch> drinkFromSearchList = [];
   List<String> ingredientList = [];
   String selectedIngredient = 'Vodka';
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
-
-
+  ApiFetchers api = ApiFetchers();
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    ApiFetchers api = ApiFetchers();
+    //ApiFetchers api = ApiFetchers();
     futureIngredientList = api.fetchIngredientList();
     fillIngredientList();
     print(ingredientList.length.toString() + "length");
   }
 
-  void fillDrinksFromSearchList() async {
+  Future<void> fillDrinksFromSearchList() async {
     drinkFromSearchList = await futureSearchResult;
-    print(drinkFromSearchList.length.toString() + "length");
+    setState(() {});
+    print(drinkFromSearchList.length.toString() + "length cocktail search");
   }
 
   void fillIngredientList() async {
     ingredientList = await futureIngredientList;
-    print(ingredientList.length.toString() + "length");
+    print(ingredientList.length.toString() + "length ingredient list");
+  }
+
+  /*
+  Future<void> fillDrinkDetail() async {
+    drinkDetail = await futureDrinkDetail;
+    setState(() {});
+    print("drinkdetail populated");
+  }
+  */
+
+  Future<void> fillDrinkDetailNullsafe() async {
+    drinkDetailNullSafe = await futureDrinkDetailNullSafe;
+    setState(() {});
+    print("drinkdetail populated");
   }
 
   void showIngredientMenu(BuildContext context) {
@@ -92,27 +111,22 @@ class _MyHomePageState extends State<MyHomePage> {
       context: context,
       builder: (BuildContext context) {
         return SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children:
-            ingredientList.map((String ingredient) {
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: ingredientList.map((String ingredient) {
               return ListTile(
                 title: Text(ingredient),
                 onTap: () {
                   Navigator.pop(context);
                   setState(() {
                     selectedIngredient = ingredient;
-
-                  ApiFetchers api = ApiFetchers();
-                  futureSearchResult = api.searchByIngredient(selectedIngredient);
-                  fillDrinksFromSearchList();
-
+                    futureSearchResult = api.searchByIngredient(selectedIngredient);
+                    fillDrinksFromSearchList();
                   });
-
                 },
-            );
-          }).toList(),
-        ),
+              );
+            }).toList(),
+          ),
         );
       },
     );
@@ -120,21 +134,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
+    ScrollController listScrollController = ScrollController();
 
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
-
         leading: IconButton(
           icon: const Icon(Icons.liquor),
           tooltip: 'Select Ingredient',
-          onPressed: () { showIngredientMenu(context); },
+          onPressed: () {
+            showIngredientMenu(context);
+            listScrollController
+                .jumpTo(listScrollController.position.minScrollExtent);
+          },
         ),
-
         title: Text(widget.title),
-
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(30.0),
           child: Container(
@@ -145,12 +160,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ),
         ),
-
       ),
 
-
-
       body: ListView.builder(
+        controller: listScrollController,
         itemCount: drinkFromSearchList.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
@@ -158,21 +171,69 @@ class _MyHomePageState extends State<MyHomePage> {
             subtitle: Text(drinkFromSearchList[index].idDrink),
             leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
             onLongPress: () {
+              futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
 
+              drinkDetailDialog(context);
             },
+            trailing: Text(index.toString()),
           );
         },
       ),
+    );
+  }
+
+ Future<void> drinkDetailDialog(BuildContext context) async {
+
+    await fillDrinkDetailNullsafe();
+
+    drinkDetailNullSafe.forEach((key, value) {
+      print('$key:$value');
+    });
+
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+
+          return AlertDialog(
+            title: Text(drinkDetailNullSafe['strDrink']!),
+            content: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Image.network(drinkDetailNullSafe['strDrinkThumb']!),
+                Text('Ingredients:'),
+
+                /*
+                if(drinkDetailNullSafe["strIngredient1"!] != null) {
+                  Text(drinkDetailNullSafe[strIngredient1]!);
+                }
+                */
 
 
-    /*
-    floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
-    */
+                /*
+                for (int i = 1; i <= 15; i++) {
+                  if (drinkDetailNullSafe['strIngredient$i'] != null
+                      //&& drinkDetailNullSafe['strIngredient$i'].trim().isNotEmpty
+                  ) {
+                    Text('${drinkDetailNullSafe['strIngredient$i']} - ${drinkDetailNullSafe['strMeasure$i']}'),
+                  }
+                },
+                */
 
+                SizedBox(height: 10.0),
+                Text('Instructions:'),
+                Text(drinkDetailNullSafe['strInstructions']!),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Close'),
+              ),
+            ],
+          );
+        }
     );
   }
 }
