@@ -1,8 +1,8 @@
-import 'dart:convert';
+//import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
-import 'drinkdetails.dart';
+//import 'drinkdetails.dart';
 import 'drinkdetailnullsafe.dart';
 
 class ApiFetchers{
@@ -51,6 +51,7 @@ class ApiFetchers{
     }
   }
 
+  /*
   Future<DrinkFromDetail> fetchDrinkDetail(String idDrink) async {
     final response = await http
         .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=' + idDrink));
@@ -68,6 +69,8 @@ class ApiFetchers{
       throw Exception('Failed to load drink detail');
     }
   }
+  */
+
 
   Future<Map<String, String?>> fetchDrinkDetailNullsafe(String idDrink) async {
     final response = await http

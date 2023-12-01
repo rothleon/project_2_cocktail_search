@@ -1,9 +1,5 @@
-// To parse this JSON data, do
-//
-//     final ingredientlist = ingredientlistFromJson(jsonString);
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 
 
 Ingredientlist ingredientlistFromJson(String str) => Ingredientlist.fromJson(json.decode(str));

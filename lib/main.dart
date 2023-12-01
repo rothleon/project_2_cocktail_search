@@ -1,13 +1,13 @@
 //import 'dart:js_util';
 
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'ingredientlist.dart';
+//import 'package:http/http.dart' as http;
+//import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
-import 'drinkdetails.dart';
+//import 'drinkdetails.dart';
 import 'apifetchers.dart';
 import 'dart:async';
-import 'drinkdetailnullsafe.dart';
+//import 'drinkdetailnullsafe.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,40 +42,17 @@ class _MyHomePageState extends State<MyHomePage> {
   late Future<Map<String, String?>> futureDrinkDetailNullSafe;
   late Future<List<String>> futureIngredientList;
   late Future<List<DrinkFromSearch>> futureSearchResult;
-  late Future<DrinkFromDetail> futureDrinkDetail;
-  Map<String, String?> drinkDetailNullSafe = new Map();
-
- /* DrinkFromDetail drinkDetail = DrinkFromDetail(
-      strDrink: "strDrink",
-      strDrinkThumb: "strDrinkThumb",
-      idDrink: "idDrink",
-      strInstructions: "strInstructions",
-      strIngredient1: "strIngredient1",
-      strIngredient2: "strIngredient2",
-      strIngredient3: "strIngredient3",
-      strIngredient4: "strIngredient4",
-      strIngredient5: "strIngredient5",
-      strIngredient6: "strIngredient6",
-      strIngredient7: "strIngredient7",
-      strIngredient8: "strIngredient8",
-      strIngredient9: "strIngredient9",
-      strIngredient10: "strIngredient10",
-      strIngredient11: "strIngredient11",
-      strIngredient12: "strIngredient12",
-      strIngredient13: "strIngredient13",
-      strIngredient14: "strIngredient14",
-      strIngredient15: "strIngredient15");
-
-  */
+  Map<String, String?> drinkDetailNullSafe = {};
   List<DrinkFromSearch> drinkFromSearchList = [];
   List<String> ingredientList = [];
-  String selectedIngredient = 'Vodka';
+  String selectedIngredient = 'None';
   ApiFetchers api = ApiFetchers();
+  List<String> detailingredientsList = [];
+  List<String> detailmeasuresList = [];
 
   @override
   void initState() {
     super.initState();
-    //ApiFetchers api = ApiFetchers();
     futureIngredientList = api.fetchIngredientList();
     fillIngredientList();
     print(ingredientList.length.toString() + "length");
@@ -92,17 +69,27 @@ class _MyHomePageState extends State<MyHomePage> {
     print(ingredientList.length.toString() + "length ingredient list");
   }
 
-  /*
-  Future<void> fillDrinkDetail() async {
-    drinkDetail = await futureDrinkDetail;
-    setState(() {});
-    print("drinkdetail populated");
-  }
-  */
-
   Future<void> fillDrinkDetailNullsafe() async {
     drinkDetailNullSafe = await futureDrinkDetailNullSafe;
     setState(() {});
+    detailingredientsList.clear();
+    detailmeasuresList.clear();
+
+    for (int i = 1; i <= 15; i++) {
+      if (drinkDetailNullSafe['strIngredient$i'] != null) {
+        detailingredientsList.add(drinkDetailNullSafe['strIngredient$i']!);
+        if(drinkDetailNullSafe['strMeasure$i'] != null){
+          detailmeasuresList.add(drinkDetailNullSafe['strMeasure$i']!);
+        }
+        else {
+          detailmeasuresList.add("");
+        }
+      }
+    }
+
+    print(detailingredientsList);
+    print(detailmeasuresList);
+
     print("drinkdetail populated");
   }
 
@@ -120,7 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   Navigator.pop(context);
                   setState(() {
                     selectedIngredient = ingredient;
-                    futureSearchResult = api.searchByIngredient(selectedIngredient);
+                    futureSearchResult =
+                        api.searchByIngredient(selectedIngredient);
                     fillDrinksFromSearchList();
                   });
                 },
@@ -161,29 +149,29 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-
       body: ListView.builder(
         controller: listScrollController,
         itemCount: drinkFromSearchList.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
+            minVerticalPadding: 20,
+            tileColor: Theme.of(context).colorScheme.secondary,
+            textColor: Theme.of(context).colorScheme.onSecondary,
             title: Text(drinkFromSearchList[index].strDrink),
-            subtitle: Text(drinkFromSearchList[index].idDrink),
             leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
             onLongPress: () {
-              futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
+              futureDrinkDetailNullSafe = api
+                  .fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
 
               drinkDetailDialog(context);
             },
-            trailing: Text(index.toString()),
           );
         },
       ),
     );
   }
 
- Future<void> drinkDetailDialog(BuildContext context) async {
-
+  Future<void> drinkDetailDialog(BuildContext context) async {
     await fillDrinkDetailNullsafe();
 
     drinkDetailNullSafe.forEach((key, value) {
@@ -193,35 +181,57 @@ class _MyHomePageState extends State<MyHomePage> {
     showDialog(
         context: context,
         builder: (BuildContext context) {
-
           return AlertDialog(
-            title: Text(drinkDetailNullSafe['strDrink']!),
+            backgroundColor: Theme.of(context).colorScheme.tertiary,
+            insetPadding: EdgeInsets.fromLTRB(5, 5, 5, 5),
+            contentPadding: EdgeInsets.fromLTRB(5, 0, 0, 5),
+            titlePadding: EdgeInsets.fromLTRB(1, 1, 1, 1),
+            title: Text(
+              drinkDetailNullSafe['strDrink']!,
+              textAlign: TextAlign.center,
+            ),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.network(drinkDetailNullSafe['strDrinkThumb']!),
-                Text('Ingredients:'),
+                Image.network(
+                  drinkDetailNullSafe['strDrinkThumb']!,
+                  height: 100,
+                  width: 500,
+                  alignment: Alignment.center,
+                ),
 
-                /*
-                if(drinkDetailNullSafe["strIngredient1"!] != null) {
-                  Text(drinkDetailNullSafe[strIngredient1]!);
-                }
-                */
+                Text('Ingredients:',
+                    style: Theme.of(context).textTheme.bodyLarge),
 
+                SizedBox(
+                  height: 290,
+                  width: 250,
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: detailingredientsList.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          visualDensity: VisualDensity(vertical: -4),
+                          dense: true,
+                          title: Text(
+                              "${detailingredientsList[index]} - ${detailmeasuresList[index]}",
+                              style: Theme.of(context).textTheme.bodySmall),
+                        );
+                      }),
+                ),
+                //SizedBox(height: 2.0),
 
-                /*
-                for (int i = 1; i <= 15; i++) {
-                  if (drinkDetailNullSafe['strIngredient$i'] != null
-                      //&& drinkDetailNullSafe['strIngredient$i'].trim().isNotEmpty
-                  ) {
-                    Text('${drinkDetailNullSafe['strIngredient$i']} - ${drinkDetailNullSafe['strMeasure$i']}'),
-                  }
-                },
-                */
+                Text(
+                  'Instructions:',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
 
-                SizedBox(height: 10.0),
-                Text('Instructions:'),
-                Text(drinkDetailNullSafe['strInstructions']!),
+                SizedBox(
+                    height: 100,
+                    width: 250,
+                    child: SingleChildScrollView(
+                      child: Text(drinkDetailNullSafe['strInstructions']!),
+                    ))
               ],
             ),
             actions: [
@@ -229,11 +239,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Close'),
+                child: Text('Close',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.onTertiary)
+                ),
               ),
             ],
           );
-        }
-    );
+        });
   }
 }
