@@ -1,12 +1,9 @@
-//import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
-//import 'drinkdetails.dart';
 import 'drinkdetailnullsafe.dart';
 
 class ApiFetchers{
-
   List<String> ingredientListAsString = [];
 
   Future<List<String>> fetchIngredientList() async {
@@ -51,27 +48,6 @@ class ApiFetchers{
     }
   }
 
-  /*
-  Future<DrinkFromDetail> fetchDrinkDetail(String idDrink) async {
-    final response = await http
-        .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=' + idDrink));
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-
-      DrinkDetail list = drinkDetailFromJson(response.body);
-
-      return list.drinks[0];
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load drink detail');
-    }
-  }
-  */
-
-
   Future<Map<String, String?>> fetchDrinkDetailNullsafe(String idDrink) async {
     final response = await http
         .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=' + idDrink));
@@ -92,9 +68,4 @@ class ApiFetchers{
       throw Exception('Failed to load drink detail');
     }
   }
-
-
-
-
-
 }

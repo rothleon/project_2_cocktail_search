@@ -1,6 +1,4 @@
 import 'dart:convert';
-//import 'package:http/http.dart' as http;
-
 
 Ingredientlist ingredientlistFromJson(String str) => Ingredientlist.fromJson(json.decode(str));
 
@@ -8,15 +6,6 @@ String ingredientlistToJson(Ingredientlist data) => json.encode(data.toJson());
 
 class Ingredientlist {
   List<DrinkFromIngredientList> drinks;
-  //List<String> ingredients = [""];
-
-  /*
-  void populateIngredients(){
-    for (Drink drink in drinks){
-      ingredients.add(drink.strIngredient1);
-    }
-  }
-  */
 
   Ingredientlist({
     required this.drinks,

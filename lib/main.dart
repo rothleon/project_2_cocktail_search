@@ -1,13 +1,7 @@
-//import 'dart:js_util';
-
 import 'package:flutter/material.dart';
-//import 'package:http/http.dart' as http;
-//import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
-//import 'drinkdetails.dart';
 import 'apifetchers.dart';
 import 'dart:async';
-//import 'drinkdetailnullsafe.dart';
 
 void main() {
   runApp(const MyApp());
@@ -78,10 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
     for (int i = 1; i <= 15; i++) {
       if (drinkDetailNullSafe['strIngredient$i'] != null) {
         detailingredientsList.add(drinkDetailNullSafe['strIngredient$i']!);
-        if(drinkDetailNullSafe['strMeasure$i'] != null){
+        if (drinkDetailNullSafe['strMeasure$i'] != null) {
           detailmeasuresList.add(drinkDetailNullSafe['strMeasure$i']!);
-        }
-        else {
+        } else {
           detailmeasuresList.add("");
         }
       }
@@ -97,23 +90,27 @@ class _MyHomePageState extends State<MyHomePage> {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: ingredientList.map((String ingredient) {
-              return ListTile(
-                title: Text(ingredient),
-                onTap: () {
-                  Navigator.pop(context);
-                  setState(() {
-                    selectedIngredient = ingredient;
-                    futureSearchResult =
-                        api.searchByIngredient(selectedIngredient);
-                    fillDrinksFromSearchList();
-                  });
-                },
-              );
-            }).toList(),
+        return Scrollbar(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: ingredientList.map((String ingredient) {
+                return ListTile(
+                  tileColor: Theme.of(context).colorScheme.tertiary,
+                  textColor: Theme.of(context).colorScheme.onTertiary,
+                  title: Text(ingredient),
+                  onTap: () {
+                    Navigator.pop(context);
+                    setState(() {
+                      selectedIngredient = ingredient;
+                      futureSearchResult =
+                          api.searchByIngredient(selectedIngredient);
+                      fillDrinksFromSearchList();
+                    });
+                  },
+                );
+              }).toList(),
+            ),
           ),
         );
       },
@@ -126,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 75,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         leading: IconButton(
@@ -137,36 +135,52 @@ class _MyHomePageState extends State<MyHomePage> {
                 .jumpTo(listScrollController.position.minScrollExtent);
           },
         ),
-        title: Text(widget.title),
+        title: GestureDetector(
+            onTap: () {
+              showIngredientMenu(context);
+              listScrollController
+                  .jumpTo(listScrollController.position.minScrollExtent);
+            },
+            child: Text(widget.title)),
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(30.0),
           child: Container(
             padding: EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              'Ingredient: $selectedIngredient',
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            child: GestureDetector(
+              onTap: () {
+                showIngredientMenu(context);
+                listScrollController
+                    .jumpTo(listScrollController.position.minScrollExtent);
+              },
+              child: Text(
+                'Ingredient: $selectedIngredient',
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
             ),
           ),
         ),
       ),
-      body: ListView.builder(
-        controller: listScrollController,
-        itemCount: drinkFromSearchList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            minVerticalPadding: 20,
-            tileColor: Theme.of(context).colorScheme.secondary,
-            textColor: Theme.of(context).colorScheme.onSecondary,
-            title: Text(drinkFromSearchList[index].strDrink),
-            leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
-            onLongPress: () {
-              futureDrinkDetailNullSafe = api
-                  .fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
-
-              drinkDetailDialog(context);
-            },
-          );
-        },
+      body: Scrollbar(
+        child: ListView.builder(
+          controller: listScrollController,
+          itemCount: drinkFromSearchList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              minVerticalPadding: 20,
+              tileColor: Theme.of(context).colorScheme.secondary,
+              textColor: Theme.of(context).colorScheme.onSecondary,
+              title: Text(drinkFromSearchList[index].strDrink),
+              leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
+              onLongPress: () {
+                futureDrinkDetailNullSafe = api
+                    .fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
+        
+                drinkDetailDialog(context);
+              },
+            );
+          },
+        ),
       ),
     );
   }
@@ -206,18 +220,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 SizedBox(
                   height: 290,
                   width: 250,
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: detailingredientsList.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return ListTile(
-                          visualDensity: VisualDensity(vertical: -4),
-                          dense: true,
-                          title: Text(
-                              "${detailingredientsList[index]} - ${detailmeasuresList[index]}",
-                              style: Theme.of(context).textTheme.bodySmall),
-                        );
-                      }),
+                  child: Scrollbar(
+                    child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: detailingredientsList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            visualDensity: VisualDensity(vertical: -4),
+                            dense: true,
+                            title: Text(
+                                "${detailingredientsList[index]} - ${detailmeasuresList[index]}",
+                                style: Theme.of(context).textTheme.bodySmall),
+                          );
+                        }),
+                  ),
                 ),
                 //SizedBox(height: 2.0),
 
@@ -241,8 +257,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 child: Text('Close',
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.onTertiary)
-                ),
+                        color: Theme.of(context).colorScheme.onTertiary)),
               ),
             ],
           );

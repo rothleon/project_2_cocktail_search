@@ -1,9 +1,4 @@
-// To parse this JSON data, do
-//
-//     final searchbyingredient = searchbyingredientFromJson(jsonString);
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 SearchByIngredient searchbyingredientFromJson(String str) => SearchByIngredient.fromJson(json.decode(str));
 
