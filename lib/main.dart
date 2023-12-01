@@ -161,25 +161,29 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: Scrollbar(
-        child: ListView.builder(
-          controller: listScrollController,
-          itemCount: drinkFromSearchList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              minVerticalPadding: 20,
-              tileColor: Theme.of(context).colorScheme.secondary,
-              textColor: Theme.of(context).colorScheme.onSecondary,
-              title: Text(drinkFromSearchList[index].strDrink),
-              leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
-              onLongPress: () {
-                futureDrinkDetailNullSafe = api
-                    .fetchDrinkDetailNullsafe(drinkFromSearchList[index].idDrink);
-        
-                drinkDetailDialog(context);
-              },
-            );
-          },
+      body: Container(
+        color: Theme.of(context).colorScheme.secondary,
+        child: Scrollbar(
+          child: ListView.builder(
+            controller: listScrollController,
+            itemCount: drinkFromSearchList.length,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                minVerticalPadding: 20,
+                tileColor: Theme.of(context).colorScheme.secondary,
+                textColor: Theme.of(context).colorScheme.onSecondary,
+                title: Text(drinkFromSearchList[index].strDrink),
+                leading:
+                    Image.network(drinkFromSearchList[index].strDrinkThumb),
+                onLongPress: () {
+                  futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(
+                      drinkFromSearchList[index].idDrink);
+
+                  drinkDetailDialog(context);
+                },
+              );
+            },
+          ),
         ),
       ),
     );
