@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 
+/*
 DrinkDetail drinkDetailFromJson(String str) => DrinkDetail.fromJson(json.decode(str));
 
 String drinkDetailToJson(DrinkDetail data) => json.encode(data.toJson());
@@ -117,3 +118,4 @@ class DrinkFromDetail {
 
   };
 }
+*/

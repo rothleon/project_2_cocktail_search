@@ -43,6 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   ApiFetchers api = ApiFetchers();
   List<String> detailingredientsList = [];
   List<String> detailmeasuresList = [];
+  ScrollController listScrollController = ScrollController();
 
   @override
   void initState() {
@@ -115,14 +116,83 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
+
+    listScrollController.jumpTo(listScrollController.position.minScrollExtent);
+
+  }
+
+  AppBar buildAppBar() {
+    return AppBar(
+      leadingWidth: 75,
+      backgroundColor: Theme.of(context).colorScheme.primary,
+      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+      leading: IconButton(
+        icon: const Icon(Icons.liquor),
+        tooltip: 'Select Ingredient',
+        onPressed: () {
+          showIngredientMenu(context);
+          //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
+        },
+      ),
+      title: GestureDetector(
+          onTap: () {
+            showIngredientMenu(context);
+            //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
+          },
+          child: Text(widget.title)),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(30.0),
+        child: Container(
+          padding: EdgeInsets.only(bottom: 8.0),
+          child: GestureDetector(
+            onTap: () {
+              showIngredientMenu(context);
+              //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
+            },
+            child: Text(
+              'Ingredient: $selectedIngredient',
+              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Container buildBody() {
+    return Container(
+      color: Theme.of(context).colorScheme.secondary,
+      child: Scrollbar(
+        child: ListView.builder(
+          controller: listScrollController,
+          itemCount: drinkFromSearchList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return ListTile(
+              minVerticalPadding: 20,
+              //tileColor: Theme.of(context).colorScheme.secondary,
+              textColor: Theme.of(context).colorScheme.onSecondary,
+              title: Text(drinkFromSearchList[index].strDrink),
+              leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
+              onLongPress: () {
+                futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(
+                    drinkFromSearchList[index].idDrink);
+
+                drinkDetailDialog(context);
+              },
+            );
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    ScrollController listScrollController = ScrollController();
-
     return Scaffold(
-      appBar: AppBar(
+        appBar: buildAppBar(),
+
+        /*
+      AppBar(
         leadingWidth: 75,
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -161,7 +231,12 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: Container(
+      */
+
+        body: buildBody()
+
+        /*
+      Container(
         color: Theme.of(context).colorScheme.secondary,
         child: Scrollbar(
           child: ListView.builder(
@@ -186,7 +261,9 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-    );
+      */
+
+        );
   }
 
   Future<void> drinkDetailDialog(BuildContext context) async {
