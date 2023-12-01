@@ -33,10 +33,10 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Future<Map<String, String?>> futureDrinkDetailNullSafe;
+  late Future<Map<String, String?>> futureDrinkDetail;
   late Future<List<String>> futureIngredientList;
   late Future<List<DrinkFromSearch>> futureSearchResult;
-  Map<String, String?> drinkDetailNullSafe = {};
+  Map<String, String?> drinkDetail = {};
   List<DrinkFromSearch> drinkFromSearchList = [];
   List<String> ingredientList = [];
   String selectedIngredient = 'None';
@@ -64,17 +64,17 @@ class _MyHomePageState extends State<MyHomePage> {
     print(ingredientList.length.toString() + "length ingredient list");
   }
 
-  Future<void> fillDrinkDetailNullsafe() async {
-    drinkDetailNullSafe = await futureDrinkDetailNullSafe;
+  Future<void> fillDrinkDetail() async {
+    drinkDetail = await futureDrinkDetail;
     setState(() {});
     detailingredientsList.clear();
     detailmeasuresList.clear();
 
     for (int i = 1; i <= 15; i++) {
-      if (drinkDetailNullSafe['strIngredient$i'] != null) {
-        detailingredientsList.add(drinkDetailNullSafe['strIngredient$i']!);
-        if (drinkDetailNullSafe['strMeasure$i'] != null) {
-          detailmeasuresList.add(drinkDetailNullSafe['strMeasure$i']!);
+      if (drinkDetail['strIngredient$i'] != null) {
+        detailingredientsList.add(drinkDetail['strIngredient$i']!);
+        if (drinkDetail['strMeasure$i'] != null) {
+          detailmeasuresList.add(drinkDetail['strMeasure$i']!);
         } else {
           detailmeasuresList.add("");
         }
@@ -107,6 +107,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       futureSearchResult =
                           api.searchByIngredient(selectedIngredient);
                       fillDrinksFromSearchList();
+                      listScrollController.jumpTo(
+                          listScrollController.position.minScrollExtent);
                     });
                   },
                 );
@@ -116,9 +118,6 @@ class _MyHomePageState extends State<MyHomePage> {
         );
       },
     );
-
-    listScrollController.jumpTo(listScrollController.position.minScrollExtent);
-
   }
 
   AppBar buildAppBar() {
@@ -131,13 +130,11 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Select Ingredient',
         onPressed: () {
           showIngredientMenu(context);
-          //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
         },
       ),
       title: GestureDetector(
           onTap: () {
             showIngredientMenu(context);
-            //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
           },
           child: Text(widget.title)),
       bottom: PreferredSize(
@@ -147,7 +144,6 @@ class _MyHomePageState extends State<MyHomePage> {
           child: GestureDetector(
             onTap: () {
               showIngredientMenu(context);
-              //listScrollController.jumpTo(listScrollController.position.minScrollExtent);
             },
             child: Text(
               'Ingredient: $selectedIngredient',
@@ -174,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
               title: Text(drinkFromSearchList[index].strDrink),
               leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
               onLongPress: () {
-                futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(
+                futureDrinkDetail = api.fetchDrinkDetail(
                     drinkFromSearchList[index].idDrink);
 
                 drinkDetailDialog(context);
@@ -188,88 +184,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: buildAppBar(),
-
-        /*
-      AppBar(
-        leadingWidth: 75,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        leading: IconButton(
-          icon: const Icon(Icons.liquor),
-          tooltip: 'Select Ingredient',
-          onPressed: () {
-            showIngredientMenu(context);
-            listScrollController
-                .jumpTo(listScrollController.position.minScrollExtent);
-          },
-        ),
-        title: GestureDetector(
-            onTap: () {
-              showIngredientMenu(context);
-              listScrollController
-                  .jumpTo(listScrollController.position.minScrollExtent);
-            },
-            child: Text(widget.title)),
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(30.0),
-          child: Container(
-            padding: EdgeInsets.only(bottom: 8.0),
-            child: GestureDetector(
-              onTap: () {
-                showIngredientMenu(context);
-                listScrollController
-                    .jumpTo(listScrollController.position.minScrollExtent);
-              },
-              child: Text(
-                'Ingredient: $selectedIngredient',
-                style:
-                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-              ),
-            ),
-          ),
-        ),
-      ),
-      */
-
-        body: buildBody()
-
-        /*
-      Container(
-        color: Theme.of(context).colorScheme.secondary,
-        child: Scrollbar(
-          child: ListView.builder(
-            controller: listScrollController,
-            itemCount: drinkFromSearchList.length,
-            itemBuilder: (BuildContext context, int index) {
-              return ListTile(
-                minVerticalPadding: 20,
-                tileColor: Theme.of(context).colorScheme.secondary,
-                textColor: Theme.of(context).colorScheme.onSecondary,
-                title: Text(drinkFromSearchList[index].strDrink),
-                leading:
-                    Image.network(drinkFromSearchList[index].strDrinkThumb),
-                onLongPress: () {
-                  futureDrinkDetailNullSafe = api.fetchDrinkDetailNullsafe(
-                      drinkFromSearchList[index].idDrink);
-
-                  drinkDetailDialog(context);
-                },
-              );
-            },
-          ),
-        ),
-      ),
-      */
-
-        );
+    return Scaffold(appBar: buildAppBar(), body: buildBody());
   }
 
   Future<void> drinkDetailDialog(BuildContext context) async {
-    await fillDrinkDetailNullsafe();
+    await fillDrinkDetail();
 
-    drinkDetailNullSafe.forEach((key, value) {
+    drinkDetail.forEach((key, value) {
       print('$key:$value');
     });
 
@@ -282,28 +203,25 @@ class _MyHomePageState extends State<MyHomePage> {
             contentPadding: EdgeInsets.fromLTRB(5, 0, 0, 5),
             titlePadding: EdgeInsets.fromLTRB(1, 1, 1, 1),
             title: Text(
-              drinkDetailNullSafe['strDrink']!,
+              drinkDetail['strDrink']!,
               textAlign: TextAlign.center,
             ),
             content: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Image.network(
-                  drinkDetailNullSafe['strDrinkThumb']!,
+                  drinkDetail['strDrinkThumb']!,
                   height: 100,
                   width: 500,
                   alignment: Alignment.center,
                 ),
-
                 Text('Ingredients:',
                     style: Theme.of(context).textTheme.bodyLarge),
-
                 SizedBox(
                   height: 290,
                   width: 250,
                   child: Scrollbar(
                     child: ListView.builder(
-                        shrinkWrap: true,
                         itemCount: detailingredientsList.length,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
@@ -316,18 +234,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         }),
                   ),
                 ),
-                //SizedBox(height: 2.0),
-
                 Text(
                   'Instructions:',
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
-
                 SizedBox(
                     height: 100,
                     width: 250,
                     child: SingleChildScrollView(
-                      child: Text(drinkDetailNullSafe['strInstructions']!),
+                      child: Text(drinkDetail['strInstructions']!),
                     ))
               ],
             ),

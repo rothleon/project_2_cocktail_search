@@ -1,17 +1,17 @@
 import 'dart:convert';
 
-DrinkDetailNullsafe drinkDetailNullSafeFromJson(String str) => DrinkDetailNullsafe.fromJson(json.decode(str));
+DrinkDetail drinkDetailFromJson(String str) => DrinkDetail.fromJson(json.decode(str));
 
-String drinkDetailNullsafeToJson(DrinkDetailNullsafe data) => json.encode(data.toJson());
+String drinkDetailNullsafeToJson(DrinkDetail data) => json.encode(data.toJson());
 
-class DrinkDetailNullsafe {
+class DrinkDetail {
   List<Map<String, String?>> drinks;
 
-  DrinkDetailNullsafe({
+  DrinkDetail({
     required this.drinks,
   });
 
-  factory DrinkDetailNullsafe.fromJson(Map<String, dynamic> json) => DrinkDetailNullsafe(
+  factory DrinkDetail.fromJson(Map<String, dynamic> json) => DrinkDetail(
     drinks: List<Map<String, String?>>.from(json["drinks"].map((x) => Map.from(x).map((k, v) => MapEntry<String, String?>(k, v)))),
   );
 

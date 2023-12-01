@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'ingredientlist.dart';
 import 'searchbyingredient.dart';
-import 'drinkdetailnullsafe.dart';
+import 'drinkdetail.dart';
 
 class ApiFetchers{
   List<String> ingredientListAsString = [];
@@ -48,7 +48,7 @@ class ApiFetchers{
     }
   }
 
-  Future<Map<String, String?>> fetchDrinkDetailNullsafe(String idDrink) async {
+  Future<Map<String, String?>> fetchDrinkDetail(String idDrink) async {
     final response = await http
         .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=' + idDrink));
 
@@ -59,7 +59,7 @@ class ApiFetchers{
       // then parse the JSON.
 
       List<Map<String, String?>>;
-      DrinkDetailNullsafe list = drinkDetailNullSafeFromJson(response.body);
+      DrinkDetail list = drinkDetailFromJson(response.body);
 
       return list.drinks[0];
     } else {
