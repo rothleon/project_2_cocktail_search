@@ -33,35 +33,53 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  //Async loads from cocktaildb API
   late Future<Map<String, String?>> futureDrinkDetail;
   late Future<List<String>> futureIngredientList;
   late Future<List<DrinkFromSearch>> futureSearchResult;
+
+  //Data from cocktaildb API stored locally
   Map<String, String?> drinkDetail = {};
   List<DrinkFromSearch> drinkFromSearchList = [];
   List<String> ingredientList = [];
-  String selectedIngredient = 'None';
-  ApiFetchers api = ApiFetchers();
+
+  //Ingredients for cocktail details dialog stored in list form
   List<String> detailingredientsList = [];
   List<String> detailmeasuresList = [];
+
+  //Currently selected ingredient
+  String selectedIngredient = 'None';
+
+  //Instanced class of fetcher methods from cocktaildb API
+  ApiFetchers api = ApiFetchers();
+
+  //Controller instance to return the cocktail list to the top when new ingredient search
   ScrollController listScrollController = ScrollController();
+
+  //Popup instructional help snackbar for short taps on cocktails
+  SnackBar snackBar = const SnackBar(
+    padding: EdgeInsets.fromLTRB(100, 0, 100, 0),
+    content:
+        Text('Touch and hold a cocktail for ingredients and instructions.'),
+  );
 
   @override
   void initState() {
     super.initState();
     futureIngredientList = api.fetchIngredientList();
     fillIngredientList();
-    print(ingredientList.length.toString() + "length");
+    //print(ingredientList.length.toString() + "length");
   }
 
   Future<void> fillDrinksFromSearchList() async {
     drinkFromSearchList = await futureSearchResult;
     setState(() {});
-    print(drinkFromSearchList.length.toString() + "length cocktail search");
+    //print(drinkFromSearchList.length.toString() + "length cocktail search");
   }
 
   void fillIngredientList() async {
     ingredientList = await futureIngredientList;
-    print(ingredientList.length.toString() + "length ingredient list");
+    //print(ingredientList.length.toString() + "length ingredient list");
   }
 
   Future<void> fillDrinkDetail() async {
@@ -81,10 +99,28 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    print(detailingredientsList);
-    print(detailmeasuresList);
+    //print(detailingredientsList);
+    //print(detailmeasuresList);
 
-    print("drinkdetail populated");
+    //print("drinkdetail populated");
+  }
+
+  Widget buildIngredientMenuTile(String ingredient) {
+    return ListTile(
+      tileColor: Theme.of(context).colorScheme.tertiary,
+      textColor: Theme.of(context).colorScheme.onTertiary,
+      title: Text(ingredient),
+      onTap: () {
+        Navigator.pop(context);
+        setState(() {
+          selectedIngredient = ingredient;
+          futureSearchResult = api.searchByIngredient(selectedIngredient);
+          fillDrinksFromSearchList();
+          listScrollController
+              .jumpTo(listScrollController.position.minScrollExtent);
+        });
+      },
+    );
   }
 
   void showIngredientMenu(BuildContext context) {
@@ -96,22 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: ingredientList.map((String ingredient) {
-                return ListTile(
-                  tileColor: Theme.of(context).colorScheme.tertiary,
-                  textColor: Theme.of(context).colorScheme.onTertiary,
-                  title: Text(ingredient),
-                  onTap: () {
-                    Navigator.pop(context);
-                    setState(() {
-                      selectedIngredient = ingredient;
-                      futureSearchResult =
-                          api.searchByIngredient(selectedIngredient);
-                      fillDrinksFromSearchList();
-                      listScrollController.jumpTo(
-                          listScrollController.position.minScrollExtent);
-                    });
-                  },
-                );
+                return buildIngredientMenuTile(ingredient);
               }).toList(),
             ),
           ),
@@ -138,9 +159,9 @@ class _MyHomePageState extends State<MyHomePage> {
           },
           child: Text(widget.title)),
       bottom: PreferredSize(
-        preferredSize: Size.fromHeight(30.0),
+        preferredSize: const Size.fromHeight(30.0),
         child: Container(
-          padding: EdgeInsets.only(bottom: 8.0),
+          padding: const EdgeInsets.only(bottom: 8.0),
           child: GestureDetector(
             onTap: () {
               showIngredientMenu(context);
@@ -155,31 +176,35 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Container buildBody() {
-    return Container(
-      color: Theme.of(context).colorScheme.secondary,
-      child: Scrollbar(
-        child: ListView.builder(
-          controller: listScrollController,
-          itemCount: drinkFromSearchList.length,
-          itemBuilder: (BuildContext context, int index) {
-            return ListTile(
-              minVerticalPadding: 20,
-              //tileColor: Theme.of(context).colorScheme.secondary,
-              textColor: Theme.of(context).colorScheme.onSecondary,
-              title: Text(drinkFromSearchList[index].strDrink),
-              leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
-              onLongPress: () {
-                futureDrinkDetail = api.fetchDrinkDetail(
-                    drinkFromSearchList[index].idDrink);
-
-                drinkDetailDialog(context);
-              },
-            );
-          },
-        ),
+  Widget buildBodyScroll() {
+    return Scrollbar(
+      child: ListView.builder(
+        controller: listScrollController,
+        itemCount: drinkFromSearchList.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            minVerticalPadding: 20,
+            textColor: Theme.of(context).colorScheme.onSecondary,
+            title: Text(drinkFromSearchList[index].strDrink),
+            leading: Image.network(drinkFromSearchList[index].strDrinkThumb),
+            onLongPress: () {
+              futureDrinkDetail =
+                  api.fetchDrinkDetail(drinkFromSearchList[index].idDrink);
+              drinkDetailDialog(context);
+            },
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
+            },
+          );
+        },
       ),
     );
+  }
+
+  Widget buildBody() {
+    return Container(
+        color: Theme.of(context).colorScheme.secondary,
+        child: buildBodyScroll());
   }
 
   @override
@@ -190,18 +215,18 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> drinkDetailDialog(BuildContext context) async {
     await fillDrinkDetail();
 
-    drinkDetail.forEach((key, value) {
-      print('$key:$value');
-    });
+    //drinkDetail.forEach((key, value) {
+    //  print('$key:$value');
+    //});
 
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             backgroundColor: Theme.of(context).colorScheme.tertiary,
-            insetPadding: EdgeInsets.fromLTRB(5, 5, 5, 5),
-            contentPadding: EdgeInsets.fromLTRB(5, 0, 0, 5),
-            titlePadding: EdgeInsets.fromLTRB(1, 1, 1, 1),
+            insetPadding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+            contentPadding: const EdgeInsets.fromLTRB(5, 0, 0, 5),
+            titlePadding: const EdgeInsets.fromLTRB(1, 1, 1, 1),
             title: Text(
               drinkDetail['strDrink']!,
               textAlign: TextAlign.center,
@@ -219,13 +244,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: Theme.of(context).textTheme.bodyLarge),
                 SizedBox(
                   height: 290,
-                  width: 250,
+                  width: 500,
                   child: Scrollbar(
                     child: ListView.builder(
                         itemCount: detailingredientsList.length,
                         itemBuilder: (BuildContext context, int index) {
                           return ListTile(
-                            visualDensity: VisualDensity(vertical: -4),
+                            visualDensity: const VisualDensity(vertical: -4),
                             dense: true,
                             title: Text(
                                 "${detailingredientsList[index]} - ${detailmeasuresList[index]}",
@@ -240,7 +265,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 SizedBox(
                     height: 100,
-                    width: 250,
+                    width: 500,
                     child: SingleChildScrollView(
                       child: Text(drinkDetail['strInstructions']!),
                     ))

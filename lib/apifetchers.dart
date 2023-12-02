@@ -20,7 +20,7 @@ class ApiFetchers{
 
       for (DrinkFromIngredientList drink in list.drinks) {
         ingredientListAsString.add(drink.strIngredient1);
-        print(drink.strIngredient1);
+        //print(drink.strIngredient1);
       }
       return ingredientListAsString;
     } else {
@@ -32,7 +32,7 @@ class ApiFetchers{
 
   Future<List<DrinkFromSearch>> searchByIngredient(String ingredient) async {
     final response = await http
-        .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=' + ingredient));
+        .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=$ingredient'));
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,
@@ -50,7 +50,7 @@ class ApiFetchers{
 
   Future<Map<String, String?>> fetchDrinkDetail(String idDrink) async {
     final response = await http
-        .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=' + idDrink));
+        .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=$idDrink'));
 
     print(idDrink + " getting drink by id");
 
