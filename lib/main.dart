@@ -10,7 +10,7 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+// Root widget for the application
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+// Main page of the application, stateful widget
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;
@@ -32,6 +33,7 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+// State class for MyHomePage
 class _MyHomePageState extends State<MyHomePage> {
   //Async loads from cocktaildb API
   late Future<Map<String, String?>> futureDrinkDetail;
@@ -105,6 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
     //print("drinkdetail populated");
   }
 
+  // Method to build the ingredient menu tile
   Widget buildIngredientMenuTile(String ingredient) {
     return ListTile(
       tileColor: Theme.of(context).colorScheme.tertiary,
@@ -123,6 +126,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Method to show the ingredient menu
   void showIngredientMenu(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -141,6 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Method to build the app bar
   AppBar buildAppBar() {
     return AppBar(
       leadingWidth: 75,
@@ -176,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Method to build the body scroll
   Widget buildBodyScroll() {
     return Scrollbar(
       child: ListView.builder(
@@ -201,6 +207,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Method to build the body
   Widget buildBody() {
     return Container(
         color: Theme.of(context).colorScheme.secondary,
@@ -212,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(appBar: buildAppBar(), body: buildBody());
   }
 
+  // Method to display the detailed dialog for a selected drink
   Future<void> drinkDetailDialog(BuildContext context) async {
     await fillDrinkDetail();
 
