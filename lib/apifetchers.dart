@@ -62,7 +62,7 @@ class ApiFetchers{
     final response = await http
         .get(Uri.parse('https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=$idDrink'));
 
-    print(idDrink + " getting drink by id");
+    //print(idDrink + " getting drink by id");
 
     if (response.statusCode == 200) {
       // If the server did return a 200 OK response,

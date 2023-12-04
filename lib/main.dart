@@ -1,3 +1,4 @@
+// Importing necessary packages and files
 import 'package:flutter/material.dart';
 import 'searchbyingredient.dart';
 import 'apifetchers.dart';
@@ -7,10 +8,10 @@ void main() {
   runApp(const MyApp());
 }
 
+// Root widget for the application
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-// Root widget for the application
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -65,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Text('Touch and hold a cocktail for ingredients and instructions.'),
   );
 
+  //Method to trigger ingredient list fetch and fill on startup
   @override
   void initState() {
     super.initState();
@@ -73,17 +75,20 @@ class _MyHomePageState extends State<MyHomePage> {
     //print(ingredientList.length.toString() + "length");
   }
 
+  //Method to populate the drink search result list
   Future<void> fillDrinksFromSearchList() async {
     drinkFromSearchList = await futureSearchResult;
     setState(() {});
     //print(drinkFromSearchList.length.toString() + "length cocktail search");
   }
 
+  //Method to populate the ingredient list
   void fillIngredientList() async {
     ingredientList = await futureIngredientList;
     //print(ingredientList.length.toString() + "length ingredient list");
   }
 
+  //Method to populate the current drink details
   Future<void> fillDrinkDetail() async {
     drinkDetail = await futureDrinkDetail;
     setState(() {});
@@ -214,6 +219,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: buildBodyScroll());
   }
 
+  // Method to trigger building of the appbar and body of the app
   @override
   Widget build(BuildContext context) {
     return Scaffold(appBar: buildAppBar(), body: buildBody());
